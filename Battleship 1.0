@@ -1,0 +1,208 @@
+//This game is inspired by Hasbro's Battleship
+
+var clickTries = 0;
+var smallShipHitCount = 2;
+var mediumSmallShipHitCount = 3;
+var mediumShipHitCount = 4;
+var bigShipHitCount = 5;
+ 
+
+var smallShipHits = 0;
+var mediumSmallShipHits = 0;
+var mediumShipHits = 0;
+var bigShipHits = 0;
+var hitCounter = 30;
+
+var ship1;
+var ship2;
+var ship3;
+var ship4;
+
+
+var dotXArr=[];
+var dotYArr = [];
+var NUM_ROWS = 10;
+var NUM_COLUMNS = 10;
+var POINT_SIZE = 8;
+var WORLD_WIDTH = getWidth();
+var WORLD_HEIGHT = getHeight();
+
+//image from iStock (https://www.istockphoto.com)
+var winningEndingScreen = new WebImage("https://codehs.com/uploads/a416ec2408563dbad287f921d02f9b99");
+    winningEndingScreen.setSize(300,150);
+    winningEndingScreen.setPosition(getWidth()*.20, getHeight()*.35);
+    
+//image from the game UNDERTALE by Toby Fox
+var losingEndingScreen = new WebImage("https://codehs.com/uploads/837b39a24068223db9edc1a727fb1900");
+    losingEndingScreen.setSize(300,150);
+    losingEndingScreen.setPosition(getWidth()*.20, getHeight()*.35);
+
+var COLUMN_HEIGHT = WORLD_HEIGHT / NUM_ROWS;
+var COLUMN_WIDTH = WORLD_WIDTH / NUM_COLUMNS;
+
+var txt = new Text("You only have 30 tries!", "20pt Arial");
+
+function start(){
+    println("You have 30 tries! click on a dot to shoot. Do not click on a number or letter.");
+    makeWorld();
+    ship1 = smallShip();
+    ship2 = mediumSmallShip();
+    ship3 = mediumShip();
+    ship4 = bigShip();
+    mouseClickMethod(hits);
+}
+
+
+function makeWorld(){
+    var alphabet = ["","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","Q","X","Y","Z"];
+    var columIndx = 0;
+    var horLine = new Line(0,COLUMN_HEIGHT,WORLD_WIDTH,COLUMN_HEIGHT);
+    horLine.setLineWidth(3);
+    add(horLine);
+    var verLine = new Line(COLUMN_WIDTH,0,COLUMN_WIDTH,WORLD_HEIGHT);
+    verLine.setLineWidth(3);
+    add(verLine);
+    for(var row = 0; row < NUM_ROWS; row++){
+            for(var column = 0; column < NUM_COLUMNS; column++){
+                if(column==0){
+                    var xPosition = column * COLUMN_WIDTH+COLUMN_WIDTH/4;
+                    var yPosition = row * COLUMN_HEIGHT + COLUMN_HEIGHT/1.5;
+                    var coord = new Text (alphabet[columIndx], "15pt Arial");
+                    coord.setPosition(xPosition,yPosition);
+                    add(coord);
+                    columIndx++
+                }else{
+                    if(row==0){
+                        var xPosition = column * COLUMN_WIDTH+COLUMN_WIDTH/4;
+                        var yPosition = row * COLUMN_HEIGHT + COLUMN_HEIGHT/1.5;
+                        var coord = new Text (column, "15pt Arial");
+                        coord.setPosition(xPosition,yPosition);
+                        add(coord);
+                    }else{
+                        //from Karel API (5.7.5)
+                        var xPosition = column * COLUMN_WIDTH + COLUMN_WIDTH / 2;
+                        var yPosition = row * COLUMN_HEIGHT + COLUMN_HEIGHT / 2;
+                        var point = new Circle(POINT_SIZE);
+                        point.setPosition(xPosition, yPosition);
+                        add(point);
+                        dotXArr.push(xPosition);
+                        dotYArr.push(yPosition);
+                    }
+                }
+            }
+        }
+    } 
+
+    
+function smallShip(){
+    var horOrVer = Randomizer.nextBoolean();
+    if (horOrVer == true){
+        var smallShip = new Rectangle(COLUMN_WIDTH+COLUMN_WIDTH/2, COLUMN_HEIGHT/2);
+        smallShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }else{
+        var smallShip = new Rectangle(COLUMN_WIDTH/2, COLUMN_HEIGHT+COLUMN_HEIGHT/2);
+        smallShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }
+    return smallShip;
+}
+
+function mediumSmallShip(){
+    var horOrVer = Randomizer.nextBoolean();
+    if (horOrVer == true){
+        var mediumSmallShip = new Rectangle(COLUMN_WIDTH*2+COLUMN_WIDTH/2, COLUMN_HEIGHT/2)
+        mediumSmallShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }else{
+        var mediumSmallShip = new Rectangle(COLUMN_WIDTH/2, COLUMN_HEIGHT*2+COLUMN_HEIGHT/2);
+        mediumSmallShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }
+    return mediumSmallShip;
+}
+
+function mediumShip(){
+    var horOrVer = Randomizer.nextBoolean();
+    if (horOrVer == true){
+        var mediumShip = new Rectangle (COLUMN_WIDTH*3+COLUMN_WIDTH/2, COLUMN_HEIGHT/2)
+        mediumShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }else{
+        var mediumShip = new Rectangle(COLUMN_WIDTH/2, COLUMN_HEIGHT*3+COLUMN_HEIGHT/2);
+        mediumShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }
+    return mediumShip;
+}
+
+function bigShip(){
+    var horOrVer = Randomizer.nextBoolean();
+    if (horOrVer == true){
+        var bigShip = new Rectangle(COLUMN_WIDTH*4+COLUMN_WIDTH/2, COLUMN_HEIGHT/2);
+        bigShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }else{
+        var bigShip = new Rectangle(COLUMN_WIDTH/2, COLUMN_HEIGHT*4+COLUMN_HEIGHT/2);
+        bigShip.setPosition(dotXArr[Randomizer.nextInt(0,dotXArr.length)]-COLUMN_WIDTH/4,dotYArr[Randomizer.nextInt(0,dotYArr.length)]-COLUMN_WIDTH/4);
+    }
+    return bigShip;
+}
+
+function hits(e){
+    var x = e.getX();
+    var y = e.getY();
+    var elem = getElementAt(x,y);
+    if (elem != null){
+        var smallHit = (((elem.getX()>=ship1.getX())&&(elem.getX()<=ship1.getX()+ship1.getWidth()))&&((elem.getY()>=ship1.getY())&&(elem.getY()<=ship1.getY()+ship1.getHeight())));
+        var mediumSmallHit = (((elem.getX()>=ship2.getX())&&(elem.getX()<=ship2.getX()+ship2.getWidth()))&&((elem.getY()>=ship2.getY())&&(elem.getY()<=ship2.getY()+ship2.getHeight())));
+        var mediumHit = (((elem.getX()>=ship3.getX())&&(elem.getX()<=ship3.getX()+ship3.getWidth()))&&((elem.getY()>=ship3.getY())&&(elem.getY()<=ship3.getY()+ship3.getHeight())));
+        var bigHit = (((elem.getX()>=ship4.getX())&&(elem.getX()<=ship4.getX()+ship4.getWidth())&&((elem.getY()>=ship4.getY())&&(elem.getY()<=ship4.getY()+ship4.getHeight()))));
+        if((smallHit==true)||(mediumSmallHit==true)||(mediumHit==true)||(bigHit==true)){
+            elem.setColor("red");
+            if(smallHit == true){
+                smallShipHits ++
+            }else if(mediumSmallHit == true){
+                mediumSmallShipHits ++
+            }else if(mediumHit == true){
+                mediumShipHits ++
+            }else if(bigHit == true){
+                bigShipHits ++
+            }
+            
+            if(smallShipHits == smallShipHitCount){
+                //add(smallShip)
+                println("You have sunk a ship!")
+                println("")
+            } else if(mediumSmallShipHits == mediumSmallShipHitCount) {
+                //add(mediumSmallShip);
+                println("You have sunk a ship!")
+                println("")
+            } else if(mediumShipHits == mediumShipHitCount) {
+                //add(mediumShip);
+                println("You have sunk a ship!")
+                println("")
+            } else if (bigShipHits == bigShipHitCount)  {
+                //add(bigShip);
+                println("You have sunk a ship!")
+                println("")
+            }
+        } else {
+            elem.setColor("white");
+        }
+        clickTries++
+        if(clickTries < 30){
+            if ((smallShipHits == smallShipHitCount) && (mediumSmallShipHits == mediumSmallShipHitCount) && (mediumShipHits == mediumShipHitCount) && (bigShipHits == bigShipHitCount)){
+                add(winningEndingScreen);
+            }else{
+                hitCounter--
+                if(elem.getColor()=="red"){
+                    println("You hit a ship! You have " + hitCounter + " more tries.");
+                    println("")
+                    
+                }else{
+                    println("Try again! You have " + hitCounter + " more tries." );
+                    println("")
+                }
+            }
+
+        } else {
+            println("You lost, press clear to restart!")
+            println("")
+            add(losingEndingScreen);
+        }
+    }
+}
